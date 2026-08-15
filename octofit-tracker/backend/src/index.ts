@@ -12,6 +12,10 @@ dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 8000;
+const codespaceName = process.env.CODESPACE_NAME;
+const apiBaseUrl = codespaceName
+  ? `https://${codespaceName}-8000.app.github.dev`
+  : 'http://localhost:8000';
 
 app.use(cors());
 app.use(express.json());
@@ -21,7 +25,19 @@ connectDB().catch((err) => {
 });
 
 app.get('/', (_req: Request, res: Response) => {
-  res.json({ message: 'OctoFit Tracker API' });
+  res.json({
+    message: 'OctoFit Tracker API',
+    apiBaseUrl,
+    codespaceName: codespaceName || null,
+  });
+});
+
+app.get('/api/config', (_req: Request, res: Response) => {
+  res.json({
+    apiBaseUrl,
+    codespaceName: codespaceName || null,
+    port: PORT,
+  });
 });
 
 app.get('/api/users', async (_req: Request, res: Response) => {
