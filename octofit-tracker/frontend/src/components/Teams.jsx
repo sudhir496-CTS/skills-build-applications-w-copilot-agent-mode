@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 
-const getApiBaseUrl = () => {
+const getApiUrl = () => {
   const codespaceName = import.meta.env.VITE_CODESPACE_NAME
   return codespaceName
-    ? `https://${codespaceName}-8000.app.github.dev`
-    : 'http://localhost:8000'
+    ? 'https://' + codespaceName + '-8000.app.github.dev/api/teams/'
+    : 'http://localhost:8000/api/teams/'
 }
 
 const normalizeResults = (payload) => {
@@ -22,7 +22,7 @@ function Teams() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await fetch(`${getApiBaseUrl()}/api/teams/`)
+        const response = await fetch(getApiUrl())
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
