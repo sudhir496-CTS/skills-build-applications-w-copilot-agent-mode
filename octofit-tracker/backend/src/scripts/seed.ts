@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import User from '../models/User';
 import Team from '../models/Team';
 import Activity from '../models/Activity';
@@ -8,176 +8,188 @@ import Workout from '../models/Workout';
 
 dotenv.config();
 
-const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/octofit_db';
-
 const seedDatabase = async (): Promise<void> => {
+  const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/octofit_db';
+
   console.log('Seed the octofit_db database with test data');
 
   try {
     await mongoose.connect(mongoUri);
+
     await mongoose.connection.db?.dropDatabase();
 
     const users = await User.insertMany([
       {
-        username: 'ava_runs',
+        username: 'ava_williams',
         email: 'ava@example.com',
-        password: 'hashed-password-1',
-        firstName: 'Ava',
-        lastName: 'Nguyen',
-        fitnessLevel: 'Advanced'
+        name: 'Ava Williams',
+        fitnessLevel: 'advanced',
+        goals: ['5K', 'strength gain'],
+        teamName: 'Trail Blazers',
       },
       {
-        username: 'leo_swims',
-        email: 'leo@example.com',
-        password: 'hashed-password-2',
-        firstName: 'Leo',
-        lastName: 'Martinez',
-        fitnessLevel: 'Intermediate'
+        username: 'marco_chen',
+        email: 'marco@example.com',
+        name: 'Marco Chen',
+        fitnessLevel: 'intermediate',
+        goals: ['half marathon', 'mobility'],
+        teamName: 'Trail Blazers',
       },
       {
-        username: 'maya_cycles',
-        email: 'maya@example.com',
-        password: 'hashed-password-3',
-        firstName: 'Maya',
-        lastName: 'Patel',
-        fitnessLevel: 'Intermediate'
+        username: 'sophia_lee',
+        email: 'sophia@example.com',
+        name: 'Sophia Lee',
+        fitnessLevel: 'beginner',
+        goals: ['weight loss', 'core strength'],
+        teamName: 'Summit Squad',
       },
       {
-        username: 'noah_strength',
-        email: 'noah@example.com',
-        password: 'hashed-password-4',
-        firstName: 'Noah',
-        lastName: 'Kim',
-        fitnessLevel: 'Beginner'
-      }
+        username: 'niko_jordan',
+        email: 'niko@example.com',
+        name: 'Niko Jordan',
+        fitnessLevel: 'advanced',
+        goals: ['cycling endurance', 'race prep'],
+        teamName: 'Summit Squad',
+      },
     ]);
 
     const teams = await Team.insertMany([
       {
         name: 'Trail Blazers',
-        description: 'Endurance-focused group training and mountain challenges.',
-        captain: users[0]._id,
-        members: [users[0]._id, users[1]._id, users[2]._id]
+        sport: 'Trail Running',
+        description: 'A team focused on endurance and technical trail performance.',
+        members: users.slice(0, 2).map((user) => user._id),
       },
       {
-        name: 'Iron Pulse',
-        description: 'Strength and conditioning team for personal bests.',
-        captain: users[3]._id,
-        members: [users[3]._id, users[2]._id]
-      }
+        name: 'Summit Squad',
+        sport: 'Cross-training',
+        description: 'A balanced team training for strength, cardio, and resilience.',
+        members: users.slice(2).map((user) => user._id),
+      },
     ]);
 
-    await User.updateMany(
-      { _id: { $in: teams[0].members } },
-      { $set: { team: teams[0]._id } }
-    );
-
-    await User.updateMany(
-      { _id: { $in: teams[1].members } },
-      { $set: { team: teams[1]._id } }
-    );
-
-    await Activity.insertMany([
+    const activities = await Activity.insertMany([
       {
-        user: users[0]._id,
-        type: 'Running',
-        title: 'Sunrise 5K',
-        caloriesBurned: 420,
-        durationMinutes: 32,
-        distanceKm: 5.1,
-        date: new Date('2026-08-10T06:15:00Z'),
-        notes: 'Strong pace with two tempo intervals.'
+        userId: users[0]._id,
+        userName: users[0].username,
+        type: 'Run',
+        durationMinutes: 42,
+        distanceKm: 8.4,
+        caloriesBurned: 540,
+        date: new Date('2026-08-10T06:30:00Z'),
+        notes: 'Tempo run with steady pacing and hill intervals.',
       },
       {
-        user: users[1]._id,
-        type: 'Swimming',
-        title: 'Laps and form drills',
-        caloriesBurned: 350,
-        durationMinutes: 40,
-        distanceKm: 1.8,
-        date: new Date('2026-08-11T18:30:00Z'),
-        notes: 'Focused on breathing rhythm.'
-      },
-      {
-        user: users[2]._id,
-        type: 'Cycling',
-        title: 'Hill climb session',
-        caloriesBurned: 510,
-        durationMinutes: 48,
-        distanceKm: 18.4,
-        date: new Date('2026-08-12T07:10:00Z'),
-        notes: 'Improved climbing cadence.'
-      },
-      {
-        user: users[3]._id,
+        userId: users[1]._id,
+        userName: users[1].username,
         type: 'Strength',
-        title: 'Upper body circuit',
-        caloriesBurned: 285,
-        durationMinutes: 35,
-        date: new Date('2026-08-13T17:45:00Z'),
-        notes: 'Completed three rounds with good control.'
-      }
+        durationMinutes: 55,
+        distanceKm: 0,
+        caloriesBurned: 420,
+        date: new Date('2026-08-12T18:00:00Z'),
+        notes: 'Lower-body strength circuit with squats and lunges.',
+      },
+      {
+        userId: users[2]._id,
+        userName: users[2].username,
+        type: 'Yoga',
+        durationMinutes: 30,
+        distanceKm: 0,
+        caloriesBurned: 180,
+        date: new Date('2026-08-11T07:00:00Z'),
+        notes: 'Mobility flow and recovery stretching.',
+      },
+      {
+        userId: users[3]._id,
+        userName: users[3].username,
+        type: 'Cycling',
+        durationMinutes: 60,
+        distanceKm: 24,
+        caloriesBurned: 610,
+        date: new Date('2026-08-13T05:45:00Z'),
+        notes: 'High-cadence interval ride to build endurance.',
+      },
     ]);
 
-    await Leaderboard.insertMany([
+    const leaderboardEntries = await Leaderboard.insertMany([
       {
-        user: users[0]._id,
-        team: teams[0]._id,
-        points: 1850,
-        streak: 12,
-        weeklyGoal: 180
+        userId: users[0]._id,
+        username: users[0].username,
+        teamName: teams[0].name,
+        score: 920,
+        workoutsCompleted: 12,
+        streakDays: 8,
+        rank: 1,
       },
       {
-        user: users[1]._id,
-        team: teams[0]._id,
-        points: 1600,
-        streak: 9,
-        weeklyGoal: 160
+        userId: users[3]._id,
+        username: users[3].username,
+        teamName: teams[1].name,
+        score: 890,
+        workoutsCompleted: 11,
+        streakDays: 6,
+        rank: 2,
       },
       {
-        user: users[2]._id,
-        team: teams[0]._id,
-        points: 1540,
-        streak: 7,
-        weeklyGoal: 170
+        userId: users[1]._id,
+        username: users[1].username,
+        teamName: teams[0].name,
+        score: 845,
+        workoutsCompleted: 10,
+        streakDays: 5,
+        rank: 3,
       },
       {
-        user: users[3]._id,
-        team: teams[1]._id,
-        points: 1425,
-        streak: 4,
-        weeklyGoal: 150
-      }
+        userId: users[2]._id,
+        username: users[2].username,
+        teamName: teams[1].name,
+        score: 780,
+        workoutsCompleted: 9,
+        streakDays: 4,
+        rank: 4,
+      },
     ]);
 
     await Workout.insertMany([
       {
-        title: 'Power Interval Run',
-        focus: 'Cardio',
-        difficulty: 'Advanced',
+        title: 'Hill Sprint Intervals',
+        focusArea: 'cardio',
         durationMinutes: 35,
-        exercises: ['Warm-up jog', 'Sprint intervals', 'Recovery walk', 'Cooldown stretch'],
-        recommendedFor: ['Ava', 'Leo']
+        difficulty: 'advanced',
+        equipment: ['Running shoes', 'Cones'],
+        instructions: [
+          'Warm up for 8 minutes with light jogging.',
+          'Sprint uphill for 20 seconds, recover for 60 seconds.',
+          'Repeat 8 rounds and cool down for 5 minutes.',
+        ],
       },
       {
-        title: 'Core and Mobility Flow',
-        focus: 'Recovery',
-        difficulty: 'Beginner',
+        title: 'Core Stability Circuit',
+        focusArea: 'core',
         durationMinutes: 25,
-        exercises: ['Plank variations', 'Bird dogs', 'Hip openers', 'Breathing drills'],
-        recommendedFor: ['Maya', 'Noah']
+        difficulty: 'beginner',
+        equipment: ['Mat'],
+        instructions: [
+          'Perform 12 dead bugs for each side.',
+          'Complete 15 bird dogs per side.',
+          'Finish with a 2-minute plank hold.',
+        ],
       },
       {
-        title: 'Leg Day Strength Circuit',
-        focus: 'Strength',
-        difficulty: 'Intermediate',
+        title: 'Power Ride',
+        focusArea: 'cycling',
         durationMinutes: 45,
-        exercises: ['Squats', 'Lunges', 'Romanian deadlifts', 'Calf raises'],
-        recommendedFor: ['Noah', 'Maya']
-      }
+        difficulty: 'intermediate',
+        equipment: ['Bike', 'Helmet'],
+        instructions: [
+          'Cycle at a moderate cadence for 10 minutes.',
+          'Increase resistance for 5 rounds of 2-minute hard efforts.',
+          'Recover for 2 minutes between efforts.',
+        ],
+      },
     ]);
 
-    console.log('Seed data added successfully');
+    console.log(`Seeded ${users.length} users, ${teams.length} teams, ${activities.length} activities, ${leaderboardEntries.length} leaderboard entries, and 3 workouts.`);
     await mongoose.connection.close();
   } catch (error) {
     console.error('Seeding error:', error);
